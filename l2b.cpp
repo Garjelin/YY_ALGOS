@@ -2,14 +2,17 @@
 #include <string>
 
 int main() {
-    int n;
-    std::cin >> n;
-    int arr[n];
+    int n, k;
+    std::cin >> n >> k;
+    int prices[n];
     for (int i = 0; i < n; i++) {
-        std::cin >> arr[i];
+        std::cin >> prices[i];
     }
-    for (int i = 0; i < n; i++) {
-        std::cin >> arr[i];
+    int benefit[n][k] = {0};
+    for (int i = 0; i < n-k; i++) {
+        for (int j = 0; j < k; j++) {
+            benefit[i][j] = prices[i+1] - prices[i];
+        }
     }
 
 
