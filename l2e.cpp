@@ -4,44 +4,143 @@
 class Strawberry {
 private:
     int index;
-    int up;
-    int down;
-    int distance;
-    int dayPath;
-    int nightPath;
+    long long up;
+    long long down;
+    long long distance;
+    long long dayPath;
+    long long nightPath;
+    int flagComplexSort;
 
 public:
-    Strawberry(int index, int up, int down) : index(index), up(up), down(down), dayPath(0), nightPath(0) {
+    Strawberry(int index, long long up, long long down) : index(index), up(up), down(down), dayPath(0), nightPath(0), flagComplexSort(0) {
         distance = up - down;
     }
     int getIndex() const { return index; }
-    int getUp() const { return up; }
-    int getDown() const { return down; }
-    int getDistance() const { return distance; }
-    int getDayPath() const { return dayPath; }
-    int getNightPath() const { return nightPath; }
+    long long getUp() const { return up; }
+    long long getDown() const { return down; }
+    long long getDistance() const { return distance; }
+    long long getDayPath() const { return dayPath; }
+    long long getNightPath() const { return nightPath; }
+    void setDayPath(long long day) { dayPath = day; } 
+    void setNightPath(long long night) { nightPath = night; } 
+    int getFlagComplexSort() { return flagComplexSort; }
+    void setFlagComplexSort(int flag) { flagComplexSort = flag; } 
 };
 
 class Path {
 private:
     int n;
-    std::vector<Strawberry> path;
+    std::vector<Strawberry> pathArray;
+    std::vector<Strawberry*> sortPathArray;
+    int flagMax;
 
 public:
-    Path() {
-        int up, down;
+    Path() : flagMax(0) {
+        long long up, down;
         std::cin >> n;
         for (int i = 0; i < n; ++i) {
             std::cin >> up >> down;
             Strawberry strowb(i+1, up, down);
-            path.push_back(strowb);
+            pathArray.push_back(strowb);
+        }
+    }
+
+    void fillSortArray() {
+        for (int i = 0; i < n; i++) {
+            sortPathArray.push_back(&pathArray[i]);
+        }
+    }
+
+    void bubbleSortDescending(int size) {
+        for (int i = 0; i < size - 1; i++) {
+            for (int j = size-1; j > i; j--) {
+                if (sortPathArray[j-1]->getDistance() < sortPathArray[j]->getDistance()) {
+                    std::swap(sortPathArray[j], sortPathArray[j-1]);
+                }
+            }
+        }
+    }
+
+    void complexSort() {
+        int j = 0;
+        for (int i = 0; i < n; i++) {
+            if (pathArray[i].getDistance() > 0) {
+                sortPathArray[j] = &pathArray[i];
+                sortPathArray[j]->setFlagComplexSort(1);
+                j++;
+                
+            }
+        } 
+        if (j == n) bubbleSortDescending(j);
+        else {
+            long long maxDown;
+            for (int i = 0; i < n; i++) {
+                if (pathArray[i].getFlagComplexSort() == 0) {
+                    maxDown = pathArray[i].getUp();
+                    flagMax = 1;
+                    break;
+                } 
+            }
+            if (flagMax) {
+                for (int i = 0; i < n; i++) {
+                    if ((pathArray[i].getFlagComplexSort() == 0) && (pathArray[i].getUp() > maxDown)) {
+                        maxDown = pathArray[i].getUp(); 
+                    }
+                }
+                for (int i = 0; i < n; i++) {
+                    if ((pathArray[i].getFlagComplexSort() == 0) && (pathArray[i].getUp() == maxDown)) {
+                        sortPathArray[j] = &pathArray[i];
+                        sortPathArray[j]->setFlagComplexSort(1);
+                        j++;
+                    }
+                }
+                for (int i = 0; i < n; i++) {
+                    if ((pathArray[i].getFlagComplexSort() == 0)) {
+                        sortPathArray[j] = &pathArray[i];
+                        sortPathArray[j]->setFlagComplexSort(1);
+                        j++;
+                    }
+                }
+            }
+        }
+
+    }
+
+
+    void setPath() { 
+        long long day = 0, night = 0;
+        long long up, down;
+        for (int i = 0; i < n; i++) {
+            up = sortPathArray[i]->getUp();
+            down = sortPathArray[i]->getDown();
+            day = night + up;
+            night = day - down;
+            sortPathArray[i]->setDayPath(day);
+            sortPathArray[i]->setNightPath(night);
         }
     }
 
     void printArray() const {
         for (int i = 0; i < n; i++) {
-            std::cout << "index: " << path[i].getIndex() << " " << "up: " << path[i].getUp() << " " << "down: " << path[i].getDown() << " " << "distance: " << path[i].getDistance() << " " << "dayPath: " << path[i].getDayPath() << " " << "nightPath: " << path[i].getNightPath() << std::endl;
+            std::cout << "index: " << pathArray[i].getIndex() << " " << "up: " << pathArray[i].getUp() << " " << "down: " << pathArray[i].getDown() << " " << "distance: " << pathArray[i].getDistance() << " " << "dayPath: " << pathArray[i].getDayPath() << " " << "nightPath: " << pathArray[i].getNightPath() << std::endl;
         }
+    }
+    void printArraySort() const {
+        for (int i = 0; i < n; i++) {
+            std::cout << "index: " << sortPathArray[i]->getIndex() << " " << "up: " << sortPathArray[i]->getUp() << " " << "down: " << sortPathArray[i]->getDown() << " " << "distance: " << sortPathArray[i]->getDistance() << " " << "dayPath: " << sortPathArray[i]->getDayPath() << " " << "nightPath: " << sortPathArray[i]->getNightPath() << std::endl;
+        }
+    }
+
+    void printResult() const {
+        long long max = sortPathArray[0]->getDayPath();
+        for (int i = 0; i < n; i++) {
+            if (sortPathArray[i]->getDayPath() > max) max = sortPathArray[i]->getDayPath();
+        }
+        std::cout << max << std::endl;
+        for (int i = 0; i < n-1; i++) {
+            std::cout << sortPathArray[i]->getIndex() << " ";
+        }
+        std::cout << sortPathArray[n-1]->getIndex() << std::endl;
     }
 
 };
@@ -49,7 +148,13 @@ public:
 int main() {
     Path path;
     
-    path.printArray();
+    //path.printArray();
+    path.fillSortArray();
+    //path.bubbleSortDescending();
+    path.complexSort();
+    path.setPath();
+    //path.printArraySort();
+    path.printResult();
 
     return 0;
 }
