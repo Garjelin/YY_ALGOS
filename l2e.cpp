@@ -15,6 +15,16 @@ public:
     Strawberry(int index, long long up, long long down) : index(index), up(up), down(down), dayPath(0), nightPath(0), flagComplexSort(0) {
         distance = up - down;
     }
+    Strawberry(const Strawberry &other) {
+        index = other.getIndex();
+        up = other.getUp();
+        down = other.getDown();
+        distance = other.getDistance();
+        dayPath = other.getDayPath();
+        nightPath = other.getNightPath();
+        flagComplexSort = other.getFlagComplexSort();
+    }
+
     int getIndex() const { return index; }
     long long getUp() const { return up; }
     long long getDown() const { return down; }
@@ -23,7 +33,7 @@ public:
     long long getNightPath() const { return nightPath; }
     void setDayPath(long long day) { dayPath = day; } 
     void setNightPath(long long night) { nightPath = night; } 
-    int getFlagComplexSort() { return flagComplexSort; }
+    int getFlagComplexSort() const { return flagComplexSort; }
     void setFlagComplexSort(int flag) { flagComplexSort = flag; } 
 };
 
@@ -130,6 +140,35 @@ public:
             }
         }
         std::cout << innerFlagComplexSort << std::endl;
+        
+        std::vector<Strawberry*> copySortPathArray;
+        long long max = sortPathArray[0]->getDayPath();
+        for (int i = 0; i < n; i++) {
+            copySortPathArray = sortPathArray;
+            Strawberry *tmp = sortPathArray[i];
+            copySortPathArray.erase(copySortPathArray.begin() + i);
+            if (i < innerFlagComplexSort) copySortPathArray.insert(copySortPathArray.begin() + innerFlagComplexSort-1, tmp);
+            else copySortPathArray.insert(copySortPathArray.begin() + innerFlagComplexSort, tmp);
+
+            long long day = 0, night = 0;
+            long long up, down;
+            for (int i = 0; i < n; i++) {
+                up = copySortPathArray[i]->getUp();
+                down = copySortPathArray[i]->getDown();
+                day = night + up;
+                night = day - down;
+                copySortPathArray[i]->setDayPath(day);
+                copySortPathArray[i]->setNightPath(night);
+            }
+
+            for (int i = 0; i < n; i++) {
+                if (copySortPathArray[i]->getDayPath() > max) max = copySortPathArray[i]->getDayPath();
+            }
+        }
+        std::cout << max << std::endl;
+        sortPathArray = copySortPathArray;
+        
+        
 
     }
 
