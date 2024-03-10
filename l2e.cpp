@@ -106,6 +106,33 @@ public:
 
     }
 
+    void complexSort_2() {
+        int j = 0;
+        int innerFlagComplexSort = 0;
+        for (int i = 0; i < n; i++) {
+            if (pathArray[i].getDistance() > 0) {
+                sortPathArray[j] = &pathArray[i];
+                sortPathArray[j]->setFlagComplexSort(1);
+                j++;
+                
+            }
+        } 
+        for (int i = 0; i < n; i++) {
+            if ((pathArray[i].getFlagComplexSort() == 0)) {
+                sortPathArray[j] = &pathArray[i];
+                j++;
+            }
+        }
+        for (int i = 0; i < n; i++) {
+            if ((sortPathArray[i]->getFlagComplexSort() == 0)) {
+                innerFlagComplexSort = i;
+                break;
+            }
+        }
+        std::cout << innerFlagComplexSort << std::endl;
+
+    }
+
 
     void setPath() { 
         long long day = 0, night = 0;
@@ -151,7 +178,7 @@ int main() {
     //path.printArray();
     path.fillSortArray();
     //path.bubbleSortDescending();
-    path.complexSort();
+    path.complexSort_2();
     path.setPath();
     //path.printArraySort();
     path.printResult();
