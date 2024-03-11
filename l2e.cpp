@@ -4,15 +4,15 @@
 class Strawberry {
 private:
     int index;
-    long long up;
-    long long down;
-    long long distance;
-    long long dayPath;
-    long long nightPath;
+    int up;
+    int down;
+    int distance;
+    int dayPath;
+    int nightPath;
     int flagComplexSort;
 
 public:
-    Strawberry(int index, long long up, long long down) : index(index), up(up), down(down), dayPath(0), nightPath(0), flagComplexSort(0) {
+    Strawberry(int index, int up, int down) : index(index), up(up), down(down), dayPath(0), nightPath(0), flagComplexSort(0) {
         distance = up - down;
     }
     Strawberry(const Strawberry &other) {
@@ -26,13 +26,13 @@ public:
     }
 
     int getIndex() const { return index; }
-    long long getUp() const { return up; }
-    long long getDown() const { return down; }
-    long long getDistance() const { return distance; }
-    long long getDayPath() const { return dayPath; }
-    long long getNightPath() const { return nightPath; }
-    void setDayPath(long long day) { dayPath = day; } 
-    void setNightPath(long long night) { nightPath = night; } 
+    int getUp() const { return up; }
+    int getDown() const { return down; }
+    int getDistance() const { return distance; }
+    int getDayPath() const { return dayPath; }
+    int getNightPath() const { return nightPath; }
+    void setDayPath(int day) { dayPath = day; } 
+    void setNightPath(int night) { nightPath = night; } 
     int getFlagComplexSort() const { return flagComplexSort; }
     void setFlagComplexSort(int flag) { flagComplexSort = flag; } 
 };
@@ -43,10 +43,11 @@ private:
     std::vector<Strawberry> pathArray;
     std::vector<Strawberry*> sortPathArray;
     int flagMax;
+    int max_res;
 
 public:
-    Path() : flagMax(0) {
-        long long up, down;
+    Path() : flagMax(0), max_res(0) {
+        int up, down;
         std::cin >> n;
         for (int i = 0; i < n; ++i) {
             std::cin >> up >> down;
@@ -83,7 +84,7 @@ public:
         } 
         if (j == n) bubbleSortDescending(j);
         else {
-            long long maxDown;
+            int maxDown;
             for (int i = 0; i < n; i++) {
                 if (pathArray[i].getFlagComplexSort() == 0) {
                     maxDown = pathArray[i].getUp();
@@ -139,10 +140,11 @@ public:
                 break;
             }
         }
-        std::cout << innerFlagComplexSort << std::endl;
+        // std::cout << innerFlagComplexSort << std::endl;
         
         std::vector<Strawberry*> copySortPathArray;
-        long long max = sortPathArray[0]->getDayPath();
+        std::vector<Strawberry*> copySortPathArray_final;
+        int max = sortPathArray[0]->getDayPath();
         for (int i = 0; i < n; i++) {
             copySortPathArray = sortPathArray;
             Strawberry *tmp = sortPathArray[i];
@@ -150,8 +152,8 @@ public:
             if (i < innerFlagComplexSort) copySortPathArray.insert(copySortPathArray.begin() + innerFlagComplexSort-1, tmp);
             else copySortPathArray.insert(copySortPathArray.begin() + innerFlagComplexSort, tmp);
 
-            long long day = 0, night = 0;
-            long long up, down;
+            int day = 0, night = 0;
+            int up, down;
             for (int i = 0; i < n; i++) {
                 up = copySortPathArray[i]->getUp();
                 down = copySortPathArray[i]->getDown();
@@ -162,11 +164,25 @@ public:
             }
 
             for (int i = 0; i < n; i++) {
-                if (copySortPathArray[i]->getDayPath() > max) max = copySortPathArray[i]->getDayPath();
+                if (copySortPathArray[i]->getDayPath() > max) {
+                    max = copySortPathArray[i]->getDayPath();
+                    copySortPathArray_final = copySortPathArray;
+                }
             }
         }
-        std::cout << max << std::endl;
-        sortPathArray = copySortPathArray;
+
+        max_res = max;
+        //std::cout << max_res << std::endl;
+        sortPathArray = copySortPathArray_final;
+
+        // for (int i = 0; i < n-1; i++) {
+        //     std::cout << copySortPathArray_final[i]->getIndex() << " ";
+        // }
+        // std::cout << copySortPathArray_final[n-1]->getIndex() << std::endl;
+        
+        
+        
+        //sortPathArray = copySortPathArray;
         
         
 
@@ -174,8 +190,8 @@ public:
 
 
     void setPath() { 
-        long long day = 0, night = 0;
-        long long up, down;
+        int day = 0, night = 0;
+        int up, down;
         for (int i = 0; i < n; i++) {
             up = sortPathArray[i]->getUp();
             down = sortPathArray[i]->getDown();
@@ -198,11 +214,7 @@ public:
     }
 
     void printResult() const {
-        long long max = sortPathArray[0]->getDayPath();
-        for (int i = 0; i < n; i++) {
-            if (sortPathArray[i]->getDayPath() > max) max = sortPathArray[i]->getDayPath();
-        }
-        std::cout << max << std::endl;
+        std::cout << max_res << std::endl;
         for (int i = 0; i < n-1; i++) {
             std::cout << sortPathArray[i]->getIndex() << " ";
         }
@@ -218,7 +230,7 @@ int main() {
     path.fillSortArray();
     //path.bubbleSortDescending();
     path.complexSort_2();
-    path.setPath();
+    //path.setPath();
     //path.printArraySort();
     path.printResult();
 
