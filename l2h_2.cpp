@@ -14,20 +14,33 @@ public:
     void setIsMax(int isMax) { this->isMax = isMax; }
 };
 
-class Row {
+class RowCol {
 private:
     Element* elements;
     int size;
+    int countMaxRowCol;
 
 public:
-    Row() : elements(nullptr), size(0) {}
-    Row(Element *arr, int size) : elements(arr), size(size) {}
-    void printRow() const {
+    RowCol() : elements(nullptr), size(0), countMaxRowCol(0) {}
+    RowCol(Element *arr, int size) : elements(arr), size(size), countMaxRowCol(0) {}
+    Element* getElements() const {return elements;}
+    void printRowCol() const {
         for (int i = 0; i < size; i++) {
             std::cout << elements[i].getValue() << " ";
         }
         std::cout << std::endl;
     }
+    void setCountMaxRowCol(int max) {
+        countMaxRowCol = 0;
+        for (int i = 0; i < size; i++) {
+            if (elements[i].getValue() == max) {
+                countMaxRowCol++;
+            }
+        }
+    }
+    int getCountMaxRowCol() const { 
+        return countMaxRowCol; 
+        }
 };
 
 class Field {
@@ -35,19 +48,21 @@ private:
     int m;
     int n;
     Element** arr;
-    Row *row_i;
+    RowCol *row_i;
+    RowCol *col_j;
     int max;
     int countMax;
     int res_i;
     int res_j;
 
 public:
-    Field(int m, int n) : m(m), n(n), row_i(nullptr), max(0), countMax(0), res_i(-1), res_j(-1) {
+    Field(int m, int n) : m(m), n(n), row_i(nullptr), col_j(nullptr), max(0), countMax(0), res_i(-1), res_j(-1) {
         arr = new Element*[m];
         for (int i = 0; i < m; ++i) {
             arr[i] = new Element[n];
         }
-        row_i = new Row[m];
+        row_i = new RowCol[m];
+        col_j = new RowCol[n];
     }
     ~Field() {
         for (int i = 0; i < m; ++i) {
@@ -55,15 +70,47 @@ public:
         }
         delete[] arr;
         delete[] row_i;
+        for (int j = 0; j < n; ++j) {
+            delete[] col_j[j].getElements();
+        }
+        delete[] col_j;
     }
 
     void fillRow() {
-        row_i[1] = Row(arr[1], n);
-        row_i[2] = Row(arr[2], n);
+        for (int i = 0; i < m; ++i) {
+            row_i[i] = RowCol(arr[i], n);
+        }
     }
 
-    void printRow() {
-        row_i[2].printRow();
+    // void fillCol() {
+    //     for (int j = 0; j < n; ++j) {
+    //         col_j[j] = RowCol(arr[j], m);
+    //     }
+    // }
+    void fillCol() {
+        for (int j = 0; j < n; ++j) {
+            Element* colArr = new Element[m];
+            for (int i = 0; i < m; ++i) {
+                colArr[i] = arr[i][j];
+            }
+            col_j[j] = RowCol(colArr, m);
+        }
+    }
+
+    void setCountMaxRow(int i) {
+        row_i[i].setCountMaxRowCol(max);
+    }
+    int getCountMaxRow(int i) const { return row_i[i].getCountMaxRowCol(); }
+    void setCountMaxCol(int j) {
+        col_j[j].setCountMaxRowCol(max);
+    }
+    int getCountMaxCol(int j) const { return col_j[j].getCountMaxRowCol(); }
+
+    void printRow(int i) {
+        row_i[i].printRowCol();
+    }
+    void printCol(int j) {
+        col_j[j].printRowCol();
     }
 
     int getMax() const { return max; } 
@@ -78,6 +125,11 @@ public:
             }
         }
     }
+
+    void setElement(int i, int j, int value) {
+        arr[i][j].setValue(value);
+    }
+    int getElement(int i, int j) const { return arr[i][j].getValue(); }
 
     void findFieldMax() {
         max = arr[0][0].getValue();
@@ -109,9 +161,6 @@ public:
             std::cout << std::endl;
         }
     }
-    // void printRow(int i) {
-    //     rows[i]->printRow();
-    // }
 
 };
 
@@ -120,13 +169,40 @@ int main() {
     std::cin >> m >> n;
     Field arr(m, n);
     arr.fillField();
+    arr.fillRow();
+    arr.fillCol();
+
+    
+    arr.findFieldMax();
+    //arr.countFieldMax();
+    //std::cout << "countMax " << arr.getCountMax() << std::endl;
+
+    for (int i = 0; i < m; i++) {
+        arr.setCountMaxRow(i);
+        std::cout << "arr.getCountMaxRow(" << i << "): " << arr.getCountMaxRow(i) << std::endl;
+    }
+
+    for (int i = 0; i < n; i++) {
+        arr.setCountMaxCol(i);
+        std::cout << "arr.getCountMaxCol(" << i << "): " << arr.getCountMaxCol(i) << std::endl;
+    }
+
+    arr.setElement(2, 2, 0);
     arr.printField();
     arr.findFieldMax();
-    arr.countFieldMax();
 
-    std::cout << "counMax " << arr.getCountMax() << std::endl;
-    arr.fillRow();
-    arr.printRow();
+    for (int i = 0; i < m; i++) {
+        arr.setCountMaxRow(i);
+        std::cout << "arr.getCountMaxRow(" << i << "): " << arr.getCountMaxRow(i) << std::endl;
+    }
+
+    for (int i = 0; i < n; i++) {
+        arr.setCountMaxCol(i);
+        std::cout << "arr.getCountMaxCol(" << i << "): " << arr.getCountMaxCol(i) << std::endl;
+    }
+
+    //arr.printRow(2);
+    // arr.printCol(2);
 
     return 0;
 }
